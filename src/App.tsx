@@ -1,26 +1,57 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './App.css';
 import { usePagination } from './hooks/usePagination';
 import { getUserList, IUsers } from './services/UserServices';
 import styles from './styles/table.module.scss';
-
+import paginatorStyles from './styles/paginator.module.scss';
+import filterStyles from './styles/filter.module.scss';
+import Search from './assets/search.svg';
+import Cross from './assets/cross.svg';
 const tableHeaders = ["Id", "Name", "Username", "Email", "Address", "Phone", "Website", "Company"]
 
+export interface IDisplayUsers extends Omit<IUsers,"address">{
+  address : JSX.Element;
+}
+
 function App() {
-  const [userList, setUserList] = useState<IUsers[]>([])
+  const [userList, setUserList] = useState<IDisplayUsers[]>([])
   const [loading, setLoading] = useState(false);
-  const [dataPerPage, setDataPerPage] = useState(1);
-  const { paginatedData, pagination, currentPage, pages: totalPages, goNextPage, goPreviousPage, changePage } = usePagination({ dataPerPage, data: userList, startFrom: 4 });
-  console.log(paginatedData);
-  console.log(pagination);
+  const [dataPerPage, setDataPerPage] = useState(3);
+  const [openFilter,setOpenFilter] = useState(false);
+  const [filter,setFilter] = useState("name");
+  const [isAppliedFilter,setIsAppliedFilter] = useState(false);
+  const [input,setInput] = useState("");
+
+  const FilteredUserList = useMemo(()=>{
+    if(isAppliedFilter){ 
+      console.log(filter);
+      return userList.filter((user)=>user[filter].includes(input))
+    }
+    return userList
+  },[userList,isAppliedFilter,filter])
+
+  console.log(FilteredUserList);
+
+  const onSelectFilter = (event: React.SyntheticEvent<HTMLSelectElement, Event>) => {
+    console.log(event);
+    setFilter(event.currentTarget.value);
+  } 
+  const { paginatedData, pagination, currentPage, pages: totalPages, goNextPage, goPreviousPage, changePage } = usePagination({ dataPerPage, data: FilteredUserList, startFrom: 5 });
+  // console.log(paginatedData);
+  // console.log(pagination);
   const getUser = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await getUserList();
-      setUserList(data);
+      setUserList(data.map((dat)=>{
+        return{
+          ...dat,
+          address : <>{dat.address.suite}, {dat.address.street}, {dat.address.city}, {dat.address.zipcode}(<a className={styles.addressLatLngLink} href={`https://maps.google.com/?q=${dat.address.geo.lat},${dat.address.geo.lng}}`}>{`${dat.address.geo.lat},${dat.address.geo.lng}`}</a>)</>
+        }
+      }));
     } catch (err) {
       console.debug(err);
-    } finally {
+    } finally {//https://maps.google.com/?q=
       setLoading(false);
     }
   }, [])
@@ -29,9 +60,65 @@ function App() {
     getUser();
   }, [])
 
+  const onClickFilter = () => {
+    if(!openFilter){
+      setOpenFilter(true);
+      return;
+    }
+    resetAllFilter();
+  }
+
+  const applyFilter = () => {
+      if(isAppliedFilter){
+        resetAllFilter();
+      }else{
+        setIsAppliedFilter(true);
+      }
+  }
+
+  const resetAllFilter = () => {
+    setIsAppliedFilter(false);
+    setInput("");
+    setFilter("name");
+    setOpenFilter(false);
+  }
+
+  const onBlurInput = (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    setInput(event.target.value)
+  }
+
+
+
   return (
-    <div className="App">
-      <table className={styles.userInfo}>
+    <div className="App" style={{overflowX:"auto"}}>
+      <div><h1 className={styles.title} style={{color : "#FFF"}}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img src={isAppliedFilter?Cross : Search} /></div></h1></div>
+      {
+        openFilter &&
+        <div className={filterStyles.centerContainer}>
+        <div className={filterStyles.layoutContainer}>
+        <div className={filterStyles.filterContainer}>
+            <div className={filterStyles.selectContainer}>
+              <label style={{color : "#FFF",fontSize:10}} htmlFor='filter-select'>Select Filter</label>
+            <select id="filter-select" value={filter} onChange={onSelectFilter} className={filterStyles.select}>
+              <option value="name">Name</option>
+              <option value="email">Email</option>
+              <option value="phone">Phone Number</option>
+            </select>
+            </div>
+            <div className={filterStyles.inputContainer}>
+            <label style={{visibility:"hidden"}} htmlFor='filter-input'>Value</label>
+              <input id="filter-input" defaultValue={input} onBlur={onBlurInput} className={filterStyles.input} placeholder='Enter filter value'/>
+            </div>
+        </div>
+        <div className={filterStyles.filterButtonContainer}>
+              <button onClick={applyFilter} className={filterStyles.filterButton}>{isAppliedFilter?"Remove Filter":"Apply Filter"}</button>
+        </div>
+        </div>
+        </div>
+      }
+      {
+        FilteredUserList.length > 0 && <>
+                <table className={styles.userInfo}>
         <thead className={styles.userTableHeader}>
           <tr>
             {tableHeaders.map((field) => <th>{field}</th>)}
@@ -43,8 +130,13 @@ function App() {
               <tr key={userInfo.id}>
                 {Object.keys(userInfo).map((field) => {
                   let value = userInfo[field];
-                  if (typeof value === "object") {
+                  if (typeof value === "object" && field !== "address") {
                     value = JSON.stringify(value);
+                  }
+                  if(field === "company"){
+                    const {name,catchPhrase,bs} = JSON.parse(value);
+                    console.log(name);
+                    return (<td key={userInfo.id + "_" + field}><div>{`${name} --- ${bs}`}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></td>)
                   }
                   return (<td key={userInfo.id + "_" + field}>{value}</td>)
                 })}
@@ -53,22 +145,61 @@ function App() {
           })}
         </tbody>
       </table>
-      <div>
+      <div className={paginatorStyles.paginator}>
         {currentPage > 1 &&
-          <button className="paginated_button">prev</button>
+          <span onClick={goPreviousPage} className={paginatorStyles.paginator_item}>prev</span>
         }
         {pagination.map((paginate) => {
           return (
             <>
-              {paginate.ellipsis && <span>...</span>}
-              {!paginate.ellipsis && <button className={`paginated_button${paginate.current ? " current_page" : ""}`}>{paginate.page}</button>}
+              {paginate.ellipsis && <span className={paginatorStyles.paginator_ellipsis}>...</span>}
+              {!paginate.ellipsis && <span onClick={(e)=>changePage(paginate.page,e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
             </>
           )
         })}
         {currentPage < totalPages &&
-          <button className="paginated_button">Next</button>
+          <span onClick={goNextPage} className={paginatorStyles.paginator_item}>Next</span>
         }
       </div>
+
+      <div className={styles.mobileTable}>
+      {paginatedData.map((userInfo) => {
+            return (
+              <div key={userInfo.id}>
+                {Object.keys(userInfo).map((field,index) => {
+                  let value = userInfo[field];
+                  if (typeof value === "object" && field !== "address") {
+                    value = JSON.stringify(value);
+                  }
+                  if(field === "company"){
+                    const {name,catchPhrase,bs} = JSON.parse(value);
+                    console.log(name);
+                    return (<div className={styles.mobileFlex+" "+styles.company} key={userInfo.id + "_" + field}><div>{tableHeaders[index]}:</div><div><div>{`${name} --- ${bs}`}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></div></div>)
+                  }
+                  return (<div className={styles.mobileFlex} key={userInfo.id + "_" + field}><div>{tableHeaders[index]}:</div><div>{value}</div></div>)
+                })}
+              </div>
+            )
+          })}
+     </div>
+     <div className={paginatorStyles.paginator+" "+paginatorStyles.mobile}>
+        {currentPage > 1 &&
+          <span onClick={goPreviousPage} className={paginatorStyles.paginator_item}>{"<"}</span>
+        }
+        {pagination.map((paginate) => {
+          return (
+            <>
+              {paginate.ellipsis && <span className={paginatorStyles.paginator_ellipsis}>...</span>}
+              {!paginate.ellipsis && <span onClick={(e)=>changePage(paginate.page,e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
+            </>
+          )
+        })}
+        {currentPage < totalPages &&
+          <span onClick={goNextPage} className={paginatorStyles.paginator_item}>{">"}</span>
+        }
+      </div>
+        </>
+      }
     </div>
   );
 }

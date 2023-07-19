@@ -1,11 +1,15 @@
 .userInfo{
-    padding : 2rem;
+    padding : 2rem 0;
+    margin: 0 auto;
+    @media (max-width:600px)  {
+        display : none;
+    }
 }
 
 .userTableHeader{
     > tr > th{
         height: 45px !important;
-        background-color: #8b8b8b;
+        background-color: #2f2f2f;
         color: #fff;
         padding : 1rem;
     }
@@ -20,9 +24,59 @@
             background-color: #1f2021 ;
         }
         &:nth-child(even){
-            background-color: #484848;
+            background-color: #343434;
         }
         color : #fff;
         // background-color: #616161 !important;
     }
+}
+
+.companyCatchPhrase{
+    font-weight: 600;
+    color :#7C9788;
+}
+
+a.addressLatLngLink {
+    &:link { color: lightskyblue; }
+    &:visited { color: #6d4b8d; }
+    &:hover { color: #ffffff; }
+    &:active { color: #ff4040; text-decoration:none; font-weight:normal; }
+}
+
+.mobileTable{
+    display :none;
+    @media (max-width:600px)  {
+        display : inline;
+        .mobileFlex{
+            padding : 1rem;
+            &:nth-child(1){
+                border-top: 1px #fff solid;
+                background-color: #616161;
+            }
+            display : flex;
+            text-align: left;
+            color : #fff;
+            > div:nth-child(1){
+                flex : 1 1;
+            }
+            > div:nth-child(2){
+                flex : 1 1;
+            }
+            border-bottom : #fff 1px solid;
+            &.company{
+                margin-bottom: 3rem;
+            }
+        }
+    }
+}
+
+.mobileSearchIcon{
+    padding-right: 2rem;
+    top: 0;
+    right: 0;
+    position: absolute;
+}
+
+.title{
+    position: relative;
 }
