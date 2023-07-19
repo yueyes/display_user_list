@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import './App.css';
 import { usePagination } from './hooks/usePagination';
 import { getUserList, IUsers } from './services/UserServices';
 import styles from './styles/table.module.scss';
 import paginatorStyles from './styles/paginator.module.scss';
-
+import filterStyles from './styles/filter.module.scss';
+import Search from './assets/search.svg';
+import Cross from './assets/cross.svg';
 const tableHeaders = ["Id", "Name", "Username", "Email", "Address", "Phone", "Website", "Company"]
 
 export interface IDisplayUsers extends Omit<IUsers,"address">{
@@ -15,7 +17,26 @@ function App() {
   const [userList, setUserList] = useState<IDisplayUsers[]>([])
   const [loading, setLoading] = useState(false);
   const [dataPerPage, setDataPerPage] = useState(3);
-  const { paginatedData, pagination, currentPage, pages: totalPages, goNextPage, goPreviousPage, changePage } = usePagination({ dataPerPage, data: userList, startFrom: 5 });
+  const [openFilter,setOpenFilter] = useState(false);
+  const [filter,setFilter] = useState("name");
+  const [isAppliedFilter,setIsAppliedFilter] = useState(false);
+  const [input,setInput] = useState("");
+
+  const FilteredUserList = useMemo(()=>{
+    if(isAppliedFilter){ 
+      console.log(filter);
+      return userList.filter((user)=>user[filter].includes(input))
+    }
+    return userList
+  },[userList,isAppliedFilter,filter])
+
+  console.log(FilteredUserList);
+
+  const onSelectFilter = (event: React.SyntheticEvent<HTMLSelectElement, Event>) => {
+    console.log(event);
+    setFilter(event.currentTarget.value);
+  } 
+  const { paginatedData, pagination, currentPage, pages: totalPages, goNextPage, goPreviousPage, changePage } = usePagination({ dataPerPage, data: FilteredUserList, startFrom: 5 });
   // console.log(paginatedData);
   // console.log(pagination);
   const getUser = useCallback(async () => {
@@ -39,10 +60,65 @@ function App() {
     getUser();
   }, [])
 
+  const onClickFilter = () => {
+    if(!openFilter){
+      setOpenFilter(true);
+      return;
+    }
+    resetAllFilter();
+  }
+
+  const applyFilter = () => {
+      if(isAppliedFilter){
+        resetAllFilter();
+      }else{
+        setIsAppliedFilter(true);
+      }
+  }
+
+  const resetAllFilter = () => {
+    setIsAppliedFilter(false);
+    setInput("");
+    setFilter("name");
+    setOpenFilter(false);
+  }
+
+  const onBlurInput = (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    setInput(event.target.value)
+  }
+
+
+
   return (
     <div className="App" style={{overflowX:"auto"}}>
-      <div><h1 style={{color : "#FFF"}}>User list</h1></div>
-      <table className={styles.userInfo}>
+      <div><h1 className={styles.title} style={{color : "#FFF"}}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img src={isAppliedFilter?Cross : Search} /></div></h1></div>
+      {
+        openFilter &&
+        <div className={filterStyles.centerContainer}>
+        <div className={filterStyles.layoutContainer}>
+        <div className={filterStyles.filterContainer}>
+            <div className={filterStyles.selectContainer}>
+              <label style={{color : "#FFF",fontSize:10}} htmlFor='filter-select'>Select Filter</label>
+            <select id="filter-select" value={filter} onChange={onSelectFilter} className={filterStyles.select}>
+              <option value="name">Name</option>
+              <option value="email">Email</option>
+              <option value="phone">Phone Number</option>
+            </select>
+            </div>
+            <div className={filterStyles.inputContainer}>
+            <label style={{visibility:"hidden"}} htmlFor='filter-input'>Value</label>
+              <input id="filter-input" defaultValue={input} onBlur={onBlurInput} className={filterStyles.input} placeholder='Enter filter value'/>
+            </div>
+        </div>
+        <div className={filterStyles.filterButtonContainer}>
+              <button onClick={applyFilter} className={filterStyles.filterButton}>{isAppliedFilter?"Remove Filter":"Apply Filter"}</button>
+        </div>
+        </div>
+        </div>
+      }
+      {
+        FilteredUserList.length > 0 && <>
+                <table className={styles.userInfo}>
         <thead className={styles.userTableHeader}>
           <tr>
             {tableHeaders.map((field) => <th>{field}</th>)}
@@ -122,6 +198,8 @@ function App() {
           <span onClick={goNextPage} className={paginatorStyles.paginator_item}>{">"}</span>
         }
       </div>
+        </>
+      }
     </div>
   );
 }

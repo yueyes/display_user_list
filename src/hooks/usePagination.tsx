@@ -21,6 +21,7 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
     console.log(`pages : ${pages} , startFrom : ${startFrom}, currentPage : ${currentPage}`);
 
     useEffect(() => {
+        console.log("data : ",data);
         if (data.length > 0) {
             setPaginatedData([...data].slice((currentPage - 1) * dataPerPage, currentPage * dataPerPage));
         }
@@ -83,9 +84,9 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
     const goNextPage = (e: any) => {
         e.preventDefault();
         setCurrentPage((prev) => prev === pages ? prev : prev + 1);
-        if (currentPage !== 1) {
+        // if (currentPage !== 1) {
             setPaginatedData([...data].slice(currentPage * dataPerPage, (currentPage + 1) * dataPerPage));
-        }
+        // }
         window.scrollTo({top : 0,behavior:"smooth"})
     }
 

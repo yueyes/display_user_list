@@ -1,4 +1,7 @@
 .paginator {
+    &.mobile{
+        display : none;
+    }
     @media (max-width:600px)  {
         display : none;
         &.mobile{
@@ -8,6 +11,7 @@
             bottom: 0;
             position: fixed;
             background-color: #333;
+            width : 100%;
         }
     }
     position: relative;

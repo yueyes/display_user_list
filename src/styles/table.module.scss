@@ -64,8 +64,19 @@ a.addressLatLngLink {
             }
             border-bottom : #fff 1px solid;
             &.company{
-                margin-bottom: 5rem;
+                margin-bottom: 3rem;
             }
         }
     }
+}
+
+.mobileSearchIcon{
+    padding-right: 2rem;
+    top: 0;
+    right: 0;
+    position: absolute;
+}
+
+.title{
+    position: relative;
 }
