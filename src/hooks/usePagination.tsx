@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import { IUsers } from '../services/UserServices';
+import { useEffect, useMemo, useState } from 'react';
+import { IDisplayUsers } from '../App';
 
 interface IPaginationParams {
     dataPerPage: number;
-    data: IUsers[];
+    data: IDisplayUsers[];
     startFrom: number;
+    isAppliedFilter: boolean;
 }
 
 interface IPagination {
@@ -13,16 +14,16 @@ interface IPagination {
     ellipsis: boolean;
 }
 
-export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParams) => {
-    // console.log(JSON.stringify(data));
+export const usePagination = ({ dataPerPage, data, startFrom, isAppliedFilter }: IPaginationParams) => {
+    console.log(JSON.stringify(data));
     const pages = Math.ceil(data.length / dataPerPage);
     const [currentPage, setCurrentPage] = useState(startFrom <= pages ? startFrom : 1);
     const [paginatedData, setPaginatedData] = useState([...data].slice((currentPage - 1) * dataPerPage, currentPage * dataPerPage));
-    let ellipsisLeft = false;
-    let ellipsisRight = false;
     console.log(`pages : ${pages} , startFrom : ${startFrom}, currentPage : ${currentPage}`);
 
+
     useEffect(() => {
+        console.log("data : ", data);
         if (data.length > 0) {
             setPaginatedData([...data].slice((currentPage - 1) * dataPerPage, currentPage * dataPerPage));
         }
@@ -30,37 +31,39 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
 
     useEffect(() => {
         console.log('a : ', startFrom);
+        console.log('pages : ', pages)
         setCurrentPage(startFrom <= pages ? startFrom : 1);
-    }, [startFrom])
+    }, [startFrom, pages])
 
-    const pagination = Array.from(Array(pages).keys()).reduce<IPagination[]>((accu, current, currentIndex) => {
-        const loopThroughPage = currentIndex + 1;
-        if (loopThroughPage === currentPage) {
-            return [...accu, { page: currentPage, current: true, ellipsis: false }]
-        }
-        // last page || previous page || next page
-        else if (loopThroughPage > pages - 1 || loopThroughPage === currentPage - 1 || loopThroughPage === currentPage + 1) {
-            return [...accu, { page: loopThroughPage, current: false, ellipsis: false }]
-        }
-        // 2 - currentPage // !ellipsisLeft?
-        else if (loopThroughPage > 1 && loopThroughPage < currentPage) {
-            if (accu[currentIndex - 1].ellipsis) {
-                return accu;
-            }
-            return [...accu, { page: loopThroughPage, current: false, ellipsis: true }]
-        }
-        // currentPage, currentPage + 1, ... pages
-        else if (loopThroughPage < pages && loopThroughPage > currentPage) {
-            console.log('current :', currentIndex - 1);
-            if (accu[currentIndex - 1]?.ellipsis) {
-                return accu;
-            }
-            return [...accu, { page: loopThroughPage, current: false, ellipsis: true }]
-        }
-        return accu;
-    }, [])
+    const pagination = useMemo(() => {
+        let ellipsisLeft = false;
+        let ellipsisRight = false;
+        console.log(currentPage);
 
-    console.log("pagin", pagination);
+        return Array.from(Array(pages).keys()).reduce<IPagination[]>((accu, current, currentIndex) => {
+            const loopThroughPage = currentIndex + 1;
+            if (loopThroughPage === currentPage) {
+                return [...accu, { page: currentPage, current: true, ellipsis: false }]
+            }
+            // last page || previous page || next page
+            else if (loopThroughPage > pages - 1 || loopThroughPage === currentPage - 1 || loopThroughPage === currentPage + 1) {
+                return [...accu, { page: loopThroughPage, current: false, ellipsis: false }]
+            }
+            // 2 - currentPage // !ellipsisLeft?
+            else if (loopThroughPage > 1 && loopThroughPage < currentPage && !ellipsisLeft) {
+                ellipsisLeft = true;
+                return [...accu, { page: loopThroughPage, current: false, ellipsis: true }]
+            }
+            // currentPage, currentPage + 1, ... pages
+            else if (loopThroughPage < pages && loopThroughPage > currentPage && !ellipsisRight) {
+                ellipsisRight = true;
+                return [...accu, { page: loopThroughPage, current: false, ellipsis: true }]
+            }
+            return accu;
+        }, [])
+    }, [currentPage, data, dataPerPage])
+
+    // console.log("pagin", pagination);
 
     const changePage = (page: number, e: any) => {
         e.preventDefault();
@@ -68,6 +71,7 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
             setCurrentPage(page);
             setPaginatedData([...data].slice((page - 1) * dataPerPage, page * dataPerPage))
         }
+        window.scrollTo({ top: 0, behavior: "smooth" })
     }
 
     const goPreviousPage = (e: any) => {
@@ -76,14 +80,16 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
         if (currentPage !== 1) {
             setPaginatedData([...data].slice((currentPage - 2) * dataPerPage, (currentPage - 1) * dataPerPage));
         }
+        window.scrollTo({ top: 0, behavior: "smooth" })
     }
 
     const goNextPage = (e: any) => {
         e.preventDefault();
         setCurrentPage((prev) => prev === pages ? prev : prev + 1);
-        if (currentPage !== 1) {
-            setPaginatedData([...data].slice(currentPage * dataPerPage, (currentPage + 1) * dataPerPage));
-        }
+        // if (currentPage !== 1) {
+        setPaginatedData([...data].slice(currentPage * dataPerPage, (currentPage + 1) * dataPerPage));
+        // }
+        window.scrollTo({ top: 0, behavior: "smooth" })
     }
 
 

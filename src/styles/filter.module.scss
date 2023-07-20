@@ -1,0 +1,89 @@
+$gray: #34495e;
+$darkgray: #2c3e50;
+  
+.filterContainer{
+    display : flex;
+    @media(min-width:601px){
+      flex : 1 1 75%;
+    }
+}
+
+.centerContainer{
+  border: 1px solid #616161;
+}
+
+.selectContainer,.inputContainer{
+    margin: 1rem 0.5rem 1rem 1rem;
+    text-align: left;
+    // @media(min-width:601px){
+    //   width:100%;
+    //   >select,>input{
+    //     width: calc(100% - 1em);
+    //   }
+    // }
+    width:100%;
+    >select,>input{
+      width: calc(100% - 1em);
+    }
+}
+
+  .select {
+    outline: 0;
+    border: 0;
+    box-shadow: none;
+    flex: 1;
+    padding: 0 1em;
+    color: #fff;
+    background-color: $gray;
+    background-image: none;
+    cursor: pointer;
+  }
+
+  /* Custom Select wrapper */
+  .select {
+    position: relative;
+    display: flex;
+    height: 3em;
+    border-radius: .25em;
+    @media (max-width:600px)  {
+      width : 100%!important;
+    }
+  }
+
+  .input{
+    opacity: .8;
+    height: 3em;
+    border-radius: 0.25em;
+    border: 0;
+    // padding: 0 1em;
+    padding : 0 0 0 1em;
+    background-image: none;
+  }
+
+  .filterButtonContainer{
+    margin: 1rem 0.5rem 1rem 1em;
+    text-align: right;
+    @media(min-width:601px){
+      flex : 1 1 25%;
+    }
+  }
+
+  .filterButton{
+    height: 3em;
+    width: 100%;
+    color: #fff;
+    background-color: #333;
+  }
+  .centerContainer{
+    @media (max-width:600px)  {
+      display : inline-block;
+    }
+  }
+
+  .layoutContainer{
+    display : flex;
+    align-items: flex-end;
+    @media (max-width:600px)  {
+      display : table;
+    }
+  }
