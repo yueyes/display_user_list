@@ -2,17 +2,30 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Init the project
+1. If you have not yet installed yarn, please install it by `npm i -g yarn`
+2. Run the following command under root_dir
+```
+yarn
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
 
-### `yarn start`
+### `yarn run dev`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
+
+### `yarn start`
+
+Build the app as production mode, and serve the build folder.\
+Open [http://localhost:3000 ](http://localhost:3000 ) to view it as local.
+Another network link should provide to you in console, you can also access it.
 
 ### `yarn test`
 

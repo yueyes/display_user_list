@@ -15,30 +15,27 @@ interface IPagination {
 }
 
 export const usePagination = ({ dataPerPage, data, startFrom, isAppliedFilter }: IPaginationParams) => {
-    console.log(JSON.stringify(data));
+    // console.log(JSON.stringify(data));
     const pages = Math.ceil(data.length / dataPerPage);
     const [currentPage, setCurrentPage] = useState(startFrom <= pages ? startFrom : 1);
     const [paginatedData, setPaginatedData] = useState([...data].slice((currentPage - 1) * dataPerPage, currentPage * dataPerPage));
-    console.log(`pages : ${pages} , startFrom : ${startFrom}, currentPage : ${currentPage}`);
+    // console.log(`pages : ${pages} , startFrom : ${startFrom}, currentPage : ${currentPage}`);
 
 
     useEffect(() => {
-        console.log("data : ", data);
+        // console.log("data : ", data);
         if (data.length > 0) {
             setPaginatedData([...data].slice((currentPage - 1) * dataPerPage, currentPage * dataPerPage));
         }
-    }, [data])
+    }, [data, currentPage, dataPerPage])
 
     useEffect(() => {
-        console.log('a : ', startFrom);
-        console.log('pages : ', pages)
         setCurrentPage(startFrom <= pages ? startFrom : 1);
     }, [startFrom, pages])
 
     const pagination = useMemo(() => {
         let ellipsisLeft = false;
         let ellipsisRight = false;
-        console.log(currentPage);
 
         return Array.from(Array(pages).keys()).reduce<IPagination[]>((accu, current, currentIndex) => {
             const loopThroughPage = currentIndex + 1;
@@ -61,7 +58,7 @@ export const usePagination = ({ dataPerPage, data, startFrom, isAppliedFilter }:
             }
             return accu;
         }, [])
-    }, [currentPage, data, dataPerPage])
+    }, [currentPage, pages])
 
     // console.log("pagin", pagination);
 

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import './App.css';
 import { usePagination } from './hooks/usePagination';
 import { getUserList, IUsers } from './services/UserServices';
 import styles from './styles/table.module.scss';
@@ -8,6 +7,8 @@ import filterStyles from './styles/filter.module.scss';
 import Search from './assets/search.svg';
 import Cross from './assets/cross.svg';
 import GoogleMap from './assets/google-map-icon.svg';
+import './App.css';
+
 const tableHeaders = ["Id", "Name", "Username", "Email", "Address", "Phone", "Website", "Company"]
 
 export interface IDisplayUsers extends Omit<IUsers, "address"> {
@@ -17,7 +18,7 @@ export interface IDisplayUsers extends Omit<IUsers, "address"> {
 function App() {
   const [userList, setUserList] = useState<IDisplayUsers[]>([])
   const [loading, setLoading] = useState(false);
-  const [dataPerPage, setDataPerPage] = useState(1);
+  const [dataPerPage] = useState(1);
   const [openFilter, setOpenFilter] = useState(false);
   const [filter, setFilter] = useState("name");
   const [isAppliedFilter, setIsAppliedFilter] = useState(false);
@@ -25,20 +26,18 @@ function App() {
 
   const FilteredUserList = useMemo(() => {
     if (isAppliedFilter) {
-      console.log(filter);
       return userList.filter((user) => user[filter].includes(input))
     }
     return userList
-  }, [userList, isAppliedFilter, filter])
+  }, [userList, isAppliedFilter, filter, input])
 
-  console.log("Filtered : ", FilteredUserList);
+  // console.log("Filtered : ", FilteredUserList);
 
   const onSelectFilter = (event: React.SyntheticEvent<HTMLSelectElement, Event>) => {
-    console.log(event);
     setFilter(event.currentTarget.value);
   }
   const { paginatedData, pagination, currentPage, pages: totalPages, goNextPage, goPreviousPage, changePage } = usePagination({ dataPerPage, data: FilteredUserList, startFrom: 1, isAppliedFilter });
-  console.log("Paginated : ", paginatedData);
+  // console.log("Paginated : ", paginatedData);
   // console.log(pagination);
   const getUser = useCallback(async () => {
     setLoading(true);
@@ -47,7 +46,7 @@ function App() {
       setUserList(data.map((dat) => {
         return {
           ...dat,
-          address: <>{dat.address.suite}, {dat.address.street}, {dat.address.city}, {dat.address.zipcode}<a className={styles.addressLatLngLink} rel="noopener noreferrer" target="_blank" href={`https://maps.google.com/?q=${dat.address.geo.lat},${dat.address.geo.lng}`}><img src={GoogleMap} /></a></>
+          address: <>{dat.address.suite}, {dat.address.street}, {dat.address.city}, {dat.address.zipcode}<a className={styles.addressLatLngLink} rel="noopener noreferrer" target="_blank" href={`https://maps.google.com/?q=${dat.address.geo.lat},${dat.address.geo.lng}`}><img alt="google map" src={GoogleMap} /></a></>
         }
       }));
     } catch (err) {
@@ -59,10 +58,9 @@ function App() {
 
   useEffect(() => {
     getUser();
-  }, [])
+  }, [getUser])
 
   const onClickFilter = (e: any) => {
-    console.log(openFilter);
     if (!openFilter) {
       setOpenFilter(true);
       return;
@@ -96,7 +94,7 @@ function App() {
 
   return (
     <div className="App" style={{ overflowX: "auto" }}>
-      <div><h1 className={styles.title} style={{ color: "#FFF" }}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img src={openFilter ? Cross : Search} /></div></h1></div>
+      <div><h1 className={styles.title} style={{ color: "#FFF" }}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img alt="search" src={openFilter ? Cross : Search} /></div></h1></div>
       {
         openFilter &&
         <div className={filterStyles.centerContainer}>
@@ -126,7 +124,7 @@ function App() {
           <table className={styles.userInfo}>
             <thead className={styles.userTableHeader}>
               <tr>
-                {tableHeaders.map((field) => <th>{field}</th>)}
+                {tableHeaders.map((field) => <th key={field}>{field}</th>)}
               </tr>
             </thead>
             <tbody className={styles.userTableRow}>
@@ -140,7 +138,6 @@ function App() {
                       }
                       if (field === "company") {
                         const { name, catchPhrase, bs } = JSON.parse(value);
-                        console.log(name);
                         return (<td key={userInfo.id + "_" + field}><div className={styles.companyName}>{`${name}`}</div><div className={styles.companyBs}>{bs}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></td>)
                       }
                       if (field === "website") {
@@ -164,8 +161,8 @@ function App() {
             {pagination.map((paginate) => {
               return (
                 <>
-                  {paginate.ellipsis && <span className={paginatorStyles.paginator_ellipsis}>...</span>}
-                  {!paginate.ellipsis && <span onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
+                  {paginate.ellipsis && <span key={paginate.page} className={paginatorStyles.paginator_ellipsis}>...</span>}
+                  {!paginate.ellipsis && <span key={paginate.page} onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
                 </>
               )
             })}
@@ -206,8 +203,8 @@ function App() {
             {pagination.map((paginate) => {
               return (
                 <>
-                  {paginate.ellipsis && <span className={paginatorStyles.paginator_ellipsis}>...</span>}
-                  {!paginate.ellipsis && <span onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
+                  {paginate.ellipsis && <span key={paginate.page} className={paginatorStyles.paginator_ellipsis}>...</span>}
+                  {!paginate.ellipsis && <span key={paginate.page} onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
                 </>
               )
             })}
