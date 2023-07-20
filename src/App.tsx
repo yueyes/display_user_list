@@ -17,7 +17,7 @@ export interface IDisplayUsers extends Omit<IUsers, "address"> {
 function App() {
   const [userList, setUserList] = useState<IDisplayUsers[]>([])
   const [loading, setLoading] = useState(false);
-  const [dataPerPage, setDataPerPage] = useState(1);
+  const [dataPerPage] = useState(1);
   const [openFilter, setOpenFilter] = useState(false);
   const [filter, setFilter] = useState("name");
   const [isAppliedFilter, setIsAppliedFilter] = useState(false);
@@ -29,16 +29,16 @@ function App() {
       return userList.filter((user) => user[filter].includes(input))
     }
     return userList
-  }, [userList, isAppliedFilter, filter])
+  }, [userList, isAppliedFilter, filter, input])
 
-  console.log("Filtered : ", FilteredUserList);
+  // console.log("Filtered : ", FilteredUserList);
 
   const onSelectFilter = (event: React.SyntheticEvent<HTMLSelectElement, Event>) => {
     console.log(event);
     setFilter(event.currentTarget.value);
   }
   const { paginatedData, pagination, currentPage, pages: totalPages, goNextPage, goPreviousPage, changePage } = usePagination({ dataPerPage, data: FilteredUserList, startFrom: 1, isAppliedFilter });
-  console.log("Paginated : ", paginatedData);
+  // console.log("Paginated : ", paginatedData);
   // console.log(pagination);
   const getUser = useCallback(async () => {
     setLoading(true);
@@ -47,7 +47,7 @@ function App() {
       setUserList(data.map((dat) => {
         return {
           ...dat,
-          address: <>{dat.address.suite}, {dat.address.street}, {dat.address.city}, {dat.address.zipcode}<a className={styles.addressLatLngLink} rel="noopener noreferrer" target="_blank" href={`https://maps.google.com/?q=${dat.address.geo.lat},${dat.address.geo.lng}`}><img src={GoogleMap} /></a></>
+          address: <>{dat.address.suite}, {dat.address.street}, {dat.address.city}, {dat.address.zipcode}<a className={styles.addressLatLngLink} rel="noopener noreferrer" target="_blank" href={`https://maps.google.com/?q=${dat.address.geo.lat},${dat.address.geo.lng}`}><img alt="google map" src={GoogleMap} /></a></>
         }
       }));
     } catch (err) {
@@ -59,10 +59,9 @@ function App() {
 
   useEffect(() => {
     getUser();
-  }, [])
+  }, [getUser])
 
   const onClickFilter = (e: any) => {
-    console.log(openFilter);
     if (!openFilter) {
       setOpenFilter(true);
       return;
@@ -96,7 +95,7 @@ function App() {
 
   return (
     <div className="App" style={{ overflowX: "auto" }}>
-      <div><h1 className={styles.title} style={{ color: "#FFF" }}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img src={openFilter ? Cross : Search} /></div></h1></div>
+      <div><h1 className={styles.title} style={{ color: "#FFF" }}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img alt="search" src={openFilter ? Cross : Search} /></div></h1></div>
       {
         openFilter &&
         <div className={filterStyles.centerContainer}>
