@@ -7,6 +7,7 @@ import paginatorStyles from './styles/paginator.module.scss';
 import filterStyles from './styles/filter.module.scss';
 import Search from './assets/search.svg';
 import Cross from './assets/cross.svg';
+import GoogleMap from './assets/google-map-icon.svg';
 const tableHeaders = ["Id", "Name", "Username", "Email", "Address", "Phone", "Website", "Company"]
 
 export interface IDisplayUsers extends Omit<IUsers, "address"> {
@@ -46,7 +47,7 @@ function App() {
       setUserList(data.map((dat) => {
         return {
           ...dat,
-          address: <>{dat.address.suite}, {dat.address.street}, {dat.address.city}, {dat.address.zipcode}(<a className={styles.addressLatLngLink} href={`https://maps.google.com/?q=${dat.address.geo.lat},${dat.address.geo.lng}}`}>{`${dat.address.geo.lat},${dat.address.geo.lng}`}</a>)</>
+          address: <>{dat.address.suite}, {dat.address.street}, {dat.address.city}, {dat.address.zipcode}<a className={styles.addressLatLngLink} rel="noopener noreferrer" target="_blank" href={`https://maps.google.com/?q=${dat.address.geo.lat},${dat.address.geo.lng}`}><img src={GoogleMap} /></a></>
         }
       }));
     } catch (err) {
@@ -61,11 +62,13 @@ function App() {
   }, [])
 
   const onClickFilter = (e: any) => {
+    console.log(openFilter);
     if (!openFilter) {
       setOpenFilter(true);
       return;
     }
     resetAllFilter(e);
+    setOpenFilter(false);
   }
 
   const applyFilter = (e: any) => {
@@ -93,7 +96,7 @@ function App() {
 
   return (
     <div className="App" style={{ overflowX: "auto" }}>
-      <div><h1 className={styles.title} style={{ color: "#FFF" }}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img src={isAppliedFilter ? Cross : Search} /></div></h1></div>
+      <div><h1 className={styles.title} style={{ color: "#FFF" }}>User list <div onClick={onClickFilter} className={styles.mobileSearchIcon}><img src={openFilter ? Cross : Search} /></div></h1></div>
       {
         openFilter &&
         <div className={filterStyles.centerContainer}>
@@ -138,7 +141,14 @@ function App() {
                       if (field === "company") {
                         const { name, catchPhrase, bs } = JSON.parse(value);
                         console.log(name);
-                        return (<td key={userInfo.id + "_" + field}><div>{`${name}`}</div><div>{bs}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></td>)
+                        return (<td key={userInfo.id + "_" + field}><div className={styles.companyName}>{`${name}`}</div><div className={styles.companyBs}>{bs}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></td>)
+                      }
+                      if (field === "website") {
+                        return <td key={userInfo.id + "_" + field}><a className={styles.website} rel="noopener noreferrer" target="_blank" href={`https://${value}`}>{value}</a></td>
+                      }
+                      if (field === "email") {
+                        // <a href="mailto:someone@example.com"></a>
+                        return <td key={userInfo.id + "_" + field}><a className={styles.website} href={`mailto:${value}`}>{value}</a></td>
                       }
                       return (<td key={userInfo.id + "_" + field}>{value}</td>)
                     })}
@@ -175,10 +185,15 @@ function App() {
                     }
                     if (field === "company") {
                       const { name, catchPhrase, bs } = JSON.parse(value);
-                      console.log(name);
-                      return (<div className={styles.mobileFlex + " " + styles.company} key={userInfo.id + "_" + field}><div>{tableHeaders[index]}:</div><div><div>{`${name} --- ${bs}`}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></div></div>)
+                      return (<div className={styles.mobileFlex + " " + styles.company} key={userInfo.id + "_" + field}><div className={styles.mobileItem}>{tableHeaders[index]}:</div><div className={styles.mobileItem}><div className={styles.companyName}>{`${name}`}</div><div className={styles.companyBs}>{bs}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></div></div>)
                     }
-                    return (<div className={styles.mobileFlex} key={userInfo.id + "_" + field}><div>{tableHeaders[index]}:</div><div>{value}</div></div>)
+                    if (field === "website") {
+                      return (<div className={styles.mobileFlex} key={userInfo.id + "_" + field}><div className={styles.mobileItem}>{tableHeaders[index]}:</div><a rel="noopener noreferrer" target="_blank" href={`https://${value}`} className={`${styles.mobileItem} ${styles.website}`}>{value}</a></div>)
+                    }
+                    if (field === "email") {
+                      return (<div className={styles.mobileFlex} key={userInfo.id + "_" + field}><div className={styles.mobileItem}>{tableHeaders[index]}:</div><a href={`mailto${value}`} className={`${styles.website} ${styles.mobileItem}`}>{value}</a></div>)
+                    }
+                    return (<div className={styles.mobileFlex} key={userInfo.id + "_" + field}><div className={styles.mobileItem}>{tableHeaders[index]}:</div><div className={styles.mobileItem}>{value}</div></div>)
                   })}
                 </div>
               )

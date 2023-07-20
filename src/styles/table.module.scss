@@ -1,5 +1,6 @@
 .userInfo{
     padding : 2rem 0;
+    width : 100%;
     // margin: 0 auto;
     @media (max-width:600px)  {
         display : none;
@@ -36,7 +37,7 @@
     color :#7C9788;
 }
 
-a.addressLatLngLink {
+a.addressLatLngLink,a.website {
     &:link { color: lightskyblue; }
     &:visited { color: #6d4b8d; }
     &:hover { color: #ffffff; }
@@ -66,6 +67,14 @@ a.addressLatLngLink {
             &.company{
                 margin-bottom: 3rem;
             }
+            .mobileItem{
+                &:nth-child(1){
+                    flex : 1 1 70%;
+                }
+                &:nth-child(2){
+                    flex : 1 1 100%;
+                }
+            }
         }
     }
 }
@@ -75,8 +84,18 @@ a.addressLatLngLink {
     top: 0;
     right: 0;
     position: absolute;
+    cursor: pointer;
 }
 
 .title{
     position: relative;
+}
+
+.companyName{
+    font-size : 22px;
+    font-weight: 600;
+}
+
+.companyBs{
+    font-size : 12px;
 }
