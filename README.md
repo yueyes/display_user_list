@@ -3,8 +3,10 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Init the project
-1. If you have not yet installed yarn, please install it by `npm i -g yarn`
-2. Run the following command under root_dir
+1. run `git clone https://github.com/yueyes/display_user_list`
+2. cd `display_user_list`
+3. If you have not yet installed yarn, please install it first by `npm i -g yarn`
+4. Run the following command under root_dir
 ```
 yarn
 ```
