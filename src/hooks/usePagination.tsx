@@ -30,15 +30,12 @@ export const usePagination = ({ dataPerPage, data, startFrom, isAppliedFilter }:
     }, [data, currentPage, dataPerPage])
 
     useEffect(() => {
-        console.log('a : ', startFrom);
-        console.log('pages : ', pages)
         setCurrentPage(startFrom <= pages ? startFrom : 1);
     }, [startFrom, pages])
 
     const pagination = useMemo(() => {
         let ellipsisLeft = false;
         let ellipsisRight = false;
-        console.log(currentPage);
 
         return Array.from(Array(pages).keys()).reduce<IPagination[]>((accu, current, currentIndex) => {
             const loopThroughPage = currentIndex + 1;

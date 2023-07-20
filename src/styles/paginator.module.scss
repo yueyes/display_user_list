@@ -36,12 +36,21 @@
       color: #fff;
       font-weight: 700;
       letter-spacing: .03em;
+      @media(max-width:600px){
+        height: 30px;
+        min-width: 30px;
+        border-radius: 30px;
+        line-height: 30px;
+      }
     //   display: none;
   
       &:first-child,
       &:last-child {
         padding: 0 16px;
         margin: 0 12px 6px;
+        @media(max-width:600px){
+          margin : 0;
+        }
       }
   
       &:last-child,
@@ -65,6 +74,10 @@
         color: #fff;
         font-size: 32px;
         margin-left: -6px;
+        @media(max-width:600px){
+          width: 40px;
+          margin-left : 0px;
+        }
     }
 
     &_item.current_page{

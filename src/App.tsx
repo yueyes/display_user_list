@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import './App.css';
 import { usePagination } from './hooks/usePagination';
 import { getUserList, IUsers } from './services/UserServices';
 import styles from './styles/table.module.scss';
@@ -8,6 +7,8 @@ import filterStyles from './styles/filter.module.scss';
 import Search from './assets/search.svg';
 import Cross from './assets/cross.svg';
 import GoogleMap from './assets/google-map-icon.svg';
+import './App.css';
+
 const tableHeaders = ["Id", "Name", "Username", "Email", "Address", "Phone", "Website", "Company"]
 
 export interface IDisplayUsers extends Omit<IUsers, "address"> {
@@ -25,7 +26,6 @@ function App() {
 
   const FilteredUserList = useMemo(() => {
     if (isAppliedFilter) {
-      console.log(filter);
       return userList.filter((user) => user[filter].includes(input))
     }
     return userList
@@ -34,7 +34,6 @@ function App() {
   // console.log("Filtered : ", FilteredUserList);
 
   const onSelectFilter = (event: React.SyntheticEvent<HTMLSelectElement, Event>) => {
-    console.log(event);
     setFilter(event.currentTarget.value);
   }
   const { paginatedData, pagination, currentPage, pages: totalPages, goNextPage, goPreviousPage, changePage } = usePagination({ dataPerPage, data: FilteredUserList, startFrom: 1, isAppliedFilter });
@@ -125,7 +124,7 @@ function App() {
           <table className={styles.userInfo}>
             <thead className={styles.userTableHeader}>
               <tr>
-                {tableHeaders.map((field) => <th>{field}</th>)}
+                {tableHeaders.map((field) => <th key={field}>{field}</th>)}
               </tr>
             </thead>
             <tbody className={styles.userTableRow}>
@@ -139,7 +138,6 @@ function App() {
                       }
                       if (field === "company") {
                         const { name, catchPhrase, bs } = JSON.parse(value);
-                        console.log(name);
                         return (<td key={userInfo.id + "_" + field}><div className={styles.companyName}>{`${name}`}</div><div className={styles.companyBs}>{bs}</div><div className={styles.companyCatchPhrase}>"{catchPhrase}"</div></td>)
                       }
                       if (field === "website") {
@@ -163,8 +161,8 @@ function App() {
             {pagination.map((paginate) => {
               return (
                 <>
-                  {paginate.ellipsis && <span className={paginatorStyles.paginator_ellipsis}>...</span>}
-                  {!paginate.ellipsis && <span onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
+                  {paginate.ellipsis && <span key={paginate.page} className={paginatorStyles.paginator_ellipsis}>...</span>}
+                  {!paginate.ellipsis && <span key={paginate.page} onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
                 </>
               )
             })}
@@ -205,8 +203,8 @@ function App() {
             {pagination.map((paginate) => {
               return (
                 <>
-                  {paginate.ellipsis && <span className={paginatorStyles.paginator_ellipsis}>...</span>}
-                  {!paginate.ellipsis && <span onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
+                  {paginate.ellipsis && <span key={paginate.page} className={paginatorStyles.paginator_ellipsis}>...</span>}
+                  {!paginate.ellipsis && <span key={paginate.page} onClick={(e) => changePage(paginate.page, e)} className={`${paginatorStyles.paginator_item}${paginate.current ? ` ${paginatorStyles.current_page}` : ""}`}>{paginate.page}</span>}
                 </>
               )
             })}
