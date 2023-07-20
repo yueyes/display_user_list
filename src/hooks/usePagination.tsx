@@ -5,6 +5,7 @@ interface IPaginationParams {
     dataPerPage: number;
     data: IDisplayUsers[];
     startFrom: number;
+    isAppliedFilter: boolean;
 }
 
 interface IPagination {
@@ -13,15 +14,16 @@ interface IPagination {
     ellipsis: boolean;
 }
 
-export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParams) => {
-    // console.log(JSON.stringify(data));
+export const usePagination = ({ dataPerPage, data, startFrom, isAppliedFilter }: IPaginationParams) => {
+    console.log(JSON.stringify(data));
     const pages = Math.ceil(data.length / dataPerPage);
     const [currentPage, setCurrentPage] = useState(startFrom <= pages ? startFrom : 1);
     const [paginatedData, setPaginatedData] = useState([...data].slice((currentPage - 1) * dataPerPage, currentPage * dataPerPage));
     console.log(`pages : ${pages} , startFrom : ${startFrom}, currentPage : ${currentPage}`);
 
+
     useEffect(() => {
-        console.log("data : ",data);
+        console.log("data : ", data);
         if (data.length > 0) {
             setPaginatedData([...data].slice((currentPage - 1) * dataPerPage, currentPage * dataPerPage));
         }
@@ -29,11 +31,11 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
 
     useEffect(() => {
         console.log('a : ', startFrom);
-        console.log('pages : ',pages)
+        console.log('pages : ', pages)
         setCurrentPage(startFrom <= pages ? startFrom : 1);
-    }, [startFrom,pages])
+    }, [startFrom, pages])
 
-    const pagination = useMemo(()=>{
+    const pagination = useMemo(() => {
         let ellipsisLeft = false;
         let ellipsisRight = false;
         console.log(currentPage);
@@ -58,8 +60,8 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
                 return [...accu, { page: loopThroughPage, current: false, ellipsis: true }]
             }
             return accu;
-    },[]) 
-    }, [currentPage,data,dataPerPage])
+        }, [])
+    }, [currentPage, data, dataPerPage])
 
     // console.log("pagin", pagination);
 
@@ -69,7 +71,7 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
             setCurrentPage(page);
             setPaginatedData([...data].slice((page - 1) * dataPerPage, page * dataPerPage))
         }
-        window.scrollTo({top : 0,behavior:"smooth"})
+        window.scrollTo({ top: 0, behavior: "smooth" })
     }
 
     const goPreviousPage = (e: any) => {
@@ -78,16 +80,16 @@ export const usePagination = ({ dataPerPage, data, startFrom }: IPaginationParam
         if (currentPage !== 1) {
             setPaginatedData([...data].slice((currentPage - 2) * dataPerPage, (currentPage - 1) * dataPerPage));
         }
-        window.scrollTo({top : 0,behavior:"smooth"})
+        window.scrollTo({ top: 0, behavior: "smooth" })
     }
 
     const goNextPage = (e: any) => {
         e.preventDefault();
         setCurrentPage((prev) => prev === pages ? prev : prev + 1);
         // if (currentPage !== 1) {
-            setPaginatedData([...data].slice(currentPage * dataPerPage, (currentPage + 1) * dataPerPage));
+        setPaginatedData([...data].slice(currentPage * dataPerPage, (currentPage + 1) * dataPerPage));
         // }
-        window.scrollTo({top : 0,behavior:"smooth"})
+        window.scrollTo({ top: 0, behavior: "smooth" })
     }
 
 
